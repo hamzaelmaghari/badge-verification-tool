@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>Vérification de badge</title>
+  <title>ISTHT - Vérification de badge</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     body {
@@ -17,7 +17,7 @@
       background: #ffffff;
       padding: 24px;
       border-radius: 8px;
-      max-width: 400px;
+      max-width: 420px;
       width: 100%;
       box-shadow: 0 4px 10px rgba(0,0,0,0.1);
     }
@@ -25,12 +25,18 @@
       font-size: 20px;
       margin-bottom: 16px;
     }
-    .statut.valide { color: green; }
-    .statut.invalide { color: red; }
     .ligne {
       margin-bottom: 8px;
     }
     .label {
+      font-weight: bold;
+    }
+    .valide {
+      color: green;
+      font-weight: bold;
+    }
+    .invalide {
+      color: red;
       font-weight: bold;
     }
   </style>
@@ -45,31 +51,42 @@
 <script>
   const params = new URLSearchParams(window.location.search);
   const badgeId = params.get("id");
-
   const contenu = document.getElementById("contenu");
 
+  const badges = {
+    "A7F3K9": { nom: "HAMZA EL MAGHARI" },
+    "Q2M8L4": { nom: "AMINE KHANFOUDI" },
+    "9X5P2D": { nom: "ADAM CHAMSSI" },
+    "R8C4T6": { nom: "ABDELHAQ OUMIRA" },
+    "M3Z7H2": { nom: "ABDELALI EL ABBAR" },
+    "L5N9W8": { nom: "AMINA KHADIM" },
+    "4KQ6B7": { nom: "HANAN EL ABASI" },
+    "Y2D8F9": { nom: "ZOGON MINKAPEU SALOMÉE" }
+  };
+
+  function ligne(label, value, classe = "") {
+    const div = document.createElement("div");
+    div.className = "ligne " + classe;
+    div.innerHTML = `<span class="label">${label} :</span> ${value}`;
+    return div;
+  }
+
+  contenu.innerHTML = "";
+
   if (!badgeId) {
-    contenu.innerHTML = "<p class='statut invalide'>Aucun identifiant de badge fourni.</p>";
+    contenu.appendChild(ligne("Statut", "Aucun identifiant fourni", "invalide"));
+  } else if (!badges[badgeId]) {
+    contenu.appendChild(ligne("Statut", "Badge invalide ou inconnu", "invalide"));
   } else {
-    fetch(`/api/badge/${badgeId}`)
-      .then(response => {
-        if (!response.ok) throw new Error("Badge introuvable");
-        return response.json();
-      })
-      .then(data => {
-        contenu.innerHTML = `
-          <div class="ligne"><span class="label">Nom :</span> ${data.name}</div>
-          <div class="ligne"><span class="label">Certification :</span> ${data.certification}</div>
-          <div class="ligne"><span class="label">ID du badge :</span> ${data.badgeId}</div>
-          <div class="ligne"><span class="label">Date d’émission :</span> ${data.issued}</div>
-          <div class="ligne"><span class="label">Date d’expiration :</span> ${data.expires ?? "Non applicable"}</div>
-          <div class="ligne statut valide"><strong>Statut : ${data.status}</strong></div>
-          <div class="ligne"><span class="label">Organisme émetteur :</span> ${data.issuer}</div>
-        `;
-      })
-      .catch(() => {
-        contenu.innerHTML = "<p class='statut invalide'>Badge invalide ou inconnu.</p>";
-      });
+    contenu.appendChild(ligne("Nom", badges[badgeId].nom));
+    contenu.appendChild(ligne("Fonction", "MEMBRE CAD"));
+    contenu.appendChild(ligne("Organisme", "CAD – Comité d’Auto-Discipline"));
+    contenu.appendChild(ligne("Institution", "OFPPT – Office de la Formation Professionnelle et de la Promotion du Travail"));
+    contenu.appendChild(ligne("Référence", badgeId));
+    contenu.appendChild(ligne("Date d’émission", "01/01/2026"));
+    contenu.appendChild(ligne("Date d’expiration", "Non applicable"));
+    contenu.appendChild(ligne("Statut", "Valide", "valide"));
+    contenu.appendChild(ligne("Émetteur", "ISTHT El Haouzia"));
   }
 </script>
 
