@@ -2,50 +2,154 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>ISTHT - Vérification de badge</title>
+  <title>Vérification de badge – ISTHT</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+
   <style>
+    :root {
+      --primary: #4b2ca3;
+      --success: #1e7f43;
+      --danger: #b42318;
+
+      --bg: #f5f7fb;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --border: #e5e7eb;
+      --footer-bg: #fafafa;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #0f1220;
+        --card: #161a2e;
+        --text: #e5e7eb;
+        --muted: #9ca3af;
+        --border: #2a2f4a;
+        --footer-bg: #12162a;
+      }
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
     body {
-      font-family: Arial, sans-serif;
-      background: #f4f6f8;
+      margin: 0;
+      font-family: "Inter", Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
-      height: 100vh;
+      padding: 16px;
     }
+
     .card {
-      background: #ffffff;
-      padding: 24px;
-      border-radius: 8px;
-      max-width: 420px;
       width: 100%;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      max-width: 460px;
+      background: var(--card);
+      border-radius: 14px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.25);
+      overflow: hidden;
+      border: 1px solid var(--border);
     }
-    h1 {
-      font-size: 20px;
-      margin-bottom: 16px;
+
+    .header {
+      padding: 20px 24px;
+      background: linear-gradient(135deg, var(--primary), #6d4df2);
+      color: white;
     }
+
+    .header h1 {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+    }
+
+    .header p {
+      margin: 6px 0 0;
+      font-size: 13px;
+      opacity: 0.9;
+    }
+
+    .content {
+      padding: 24px;
+    }
+
     .ligne {
-      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 14px;
     }
+
+    .ligne:last-child {
+      border-bottom: none;
+    }
+
     .label {
-      font-weight: bold;
+      color: var(--muted);
+      font-weight: 500;
     }
-    .valide {
-      color: green;
-      font-weight: bold;
+
+    .value {
+      font-weight: 600;
+      text-align: right;
     }
-    .invalide {
-      color: red;
-      font-weight: bold;
+
+    .status {
+      margin-top: 20px;
+      padding: 14px;
+      border-radius: 10px;
+      text-align: center;
+      font-weight: 700;
+      font-size: 15px;
+      letter-spacing: 0.4px;
+    }
+
+    .status.valide {
+      background: rgba(30, 127, 67, 0.15);
+      color: #4ade80;
+      border: 1px solid rgba(74, 222, 128, 0.4);
+    }
+
+    .status.invalide {
+      background: rgba(180, 35, 24, 0.15);
+      color: #f87171;
+      border: 1px solid rgba(248, 113, 113, 0.4);
+    }
+
+    .footer {
+      padding: 16px 24px;
+      background: var(--footer-bg);
+      border-top: 1px solid var(--border);
+      font-size: 12px;
+      color: var(--muted);
+      text-align: center;
     }
   </style>
 </head>
+
 <body>
 
 <div class="card">
-  <h1>Vérification de badge</h1>
-  <div id="contenu">Vérification en cours…</div>
+  <div class="header">
+    <h1>Vérification de badge</h1>
+    <p>CAD – Comité d’Auto-Discipline · OFPPT</p>
+  </div>
+
+  <div class="content" id="contenu">
+    Chargement…
+  </div>
+
+  <div class="footer">
+    ISTHT T-EL-H · El Haouzia · Système officiel de vérification
+  </div>
 </div>
 
 <script>
@@ -54,39 +158,41 @@
   const contenu = document.getElementById("contenu");
 
   const badges = {
-    "A7F3K9": { nom: "HAMZA EL MAGHARI" },
-    "Q2M8L4": { nom: "AMINE KHANFOUDI" },
-    "9X5P2D": { nom: "ADAM CHAMSSI" },
-    "R8C4T6": { nom: "ABDELHAQ OUMIRA" },
-    "M3Z7H2": { nom: "ABDELALI EL ABBAR" },
-    "L5N9W8": { nom: "AMINA KHADIM" },
-    "4KQ6B7": { nom: "HANAN EL ABASI" },
-    "Y2D8F9": { nom: "ZOGON MINKAPEU SALOMÉE" }
+    "A7F3K9": "HAMZA EL MAGHARI",
+    "Q2M8L4": "AMINE KHANFOUDI",
+    "9X5P2D": "ADAM CHAMSSI",
+    "R8C4T6": "ABDELHAQ OUMIRA",
+    "M3Z7H2": "ABDELALI EL ABBAR",
+    "L5N9W8": "AMINA KHADIM",
+    "4KQ6B7": "HANAN EL ABASI",
+    "Y2D8F9": "ZOGON MINKAPEU SALOMÉE"
   };
 
-  function ligne(label, value, classe = "") {
-    const div = document.createElement("div");
-    div.className = "ligne " + classe;
-    div.innerHTML = `<span class="label">${label} :</span> ${value}`;
-    return div;
+  function ligne(label, value) {
+    return `
+      <div class="ligne">
+        <div class="label">${label}</div>
+        <div class="value">${value}</div>
+      </div>
+    `;
   }
 
   contenu.innerHTML = "";
 
-  if (!badgeId) {
-    contenu.appendChild(ligne("Statut", "Aucun identifiant fourni", "invalide"));
-  } else if (!badges[badgeId]) {
-    contenu.appendChild(ligne("Statut", "Badge invalide ou inconnu", "invalide"));
+  if (!badgeId || !badges[badgeId]) {
+    contenu.innerHTML = `
+      <div class="status invalide">BADGE INVALIDE OU INCONNU</div>
+    `;
   } else {
-    contenu.appendChild(ligne("Nom", badges[badgeId].nom));
-    contenu.appendChild(ligne("Fonction", "MEMBRE CAD"));
-    contenu.appendChild(ligne("Organisme", "CAD – Comité d’Auto-Discipline"));
-    contenu.appendChild(ligne("Institution", "OFPPT – Office de la Formation Professionnelle et de la Promotion du Travail"));
-    contenu.appendChild(ligne("Référence", badgeId));
-    contenu.appendChild(ligne("Date d’émission", "01/01/2026"));
-    contenu.appendChild(ligne("Date d’expiration", "Non applicable"));
-    contenu.appendChild(ligne("Statut", "Valide", "valide"));
-    contenu.appendChild(ligne("Émetteur", "ISTHT El Haouzia"));
+    contenu.innerHTML = `
+      ${ligne("Nom", badges[badgeId])}
+      ${ligne("Fonction", "MEMBRE CAD")}
+      ${ligne("Référence", badgeId)}
+      ${ligne("Date d’émission", "01/01/2026")}
+      ${ligne("Expiration", "Non applicable")}
+      ${ligne("Institution", "OFPPT – La Voie de l’Avenir")}
+      <div class="status valide">BADGE VALIDE</div>
+    `;
   }
 </script>
 
